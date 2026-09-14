@@ -8,7 +8,7 @@ export default function Home() {
       <h1>웹서버보안프로그래밍</h1>
       <Counter />  
 
-      <Link href="about"> /home 페이지로 이동하기</Link>
+      <Link href="about"> /about 페이지로 이동하기</Link>
     </main>
   );
 }
