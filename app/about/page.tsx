@@ -6,7 +6,7 @@ export default function page() {
     <div>
       <h1>이 페이지는 app/about/page.tsx입니다. </h1>
 
-      <Link href="home"> /home 페이지로 이동하기</Link>
+      <Link href="/">홈으로 돌아가기</Link>
     </div>
   );
 }
