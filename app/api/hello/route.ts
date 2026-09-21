@@ -9,4 +9,3 @@ export async function GET() {
     week: 4,
   });
 }
-ㅇ
