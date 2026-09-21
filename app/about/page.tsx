@@ -1,26 +1,40 @@
 import Link from "next/link";
+import { Counter } from "@/components/Counter"; // 기존 카운터 컴포넌트
 
-// app/about/page.tsx → 자동으로 "/about" 경로가 됩니다.
-// 별도의 라우터 설정 파일 없이, 폴더 구조 자체가 URL 구조가 되는 것이
-// Next.js App Router의 File-based Routing입니다.
-export default function AboutPage() {
+export default function Home() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 px-8 py-24 text-center">
-      <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">
-        이 페이지는 app/about/page.tsx 입니다
-      </h1>
-      <p className="max-w-md text-base leading-7 text-zinc-600 dark:text-zinc-400">
-        app 폴더 아래에 새 폴더를 만들고 그 안에 page.tsx를 두면,
-        폴더 이름이 그대로 경로가 됩니다. app/about → /about,
-        app/products/[id] → /products/123 처럼 동적 경로도 같은 방식입니다.
-        (동적 라우팅은 4주차에서 다룹니다.)
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 gap-6 text-center">
+      <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+        Server Component
+      </span>
+
+      <h1 className="text-4xl font-bold">웹서버보안프로그래밍 — 최용진</h1>
+
+      <p className="max-w-xl text-zinc-600 dark:text-zinc-400">
+        create-next-app으로 만든 Next.js 16 App Router 템플릿입니다. 이 페이지는
+        서버에서 렌더링되고, 아래 카운터는 브라우저에서 동작하는 별도의 Client
+        Component입니다.
       </p>
-      <Link
-        href="/"
-        className="text-sm font-medium text-zinc-950 underline underline-offset-4 dark:text-zinc-50"
-      >
-        ← 홈으로 돌아가기
-      </Link>
-    </div>
+      {/* 기존 카운터 */}
+      <Counter />
+
+      {/* 🔽 이동 링크 영역 🔽 */}
+      <div className="flex flex-col gap-2 mt-4">
+        <Link
+          href="/about"
+          className="text-sm font-medium text-zinc-950 underline underline-offset-4 dark:text-zinc-50 hover:opacity-80"
+        >
+          /about 페이지로 이동 (파일 기반 라우팅 확인) →
+        </Link>
+
+        {/* 👇 새로 추가한 /products 이동 링크 👇 */}
+        <Link
+          href="/products"
+          className="text-sm font-medium text-zinc-950 underline underline-offset-4 dark:text-zinc-50 hover:opacity-80"
+        >
+          /products 페이지로 이동 (상품 목록) →
+        </Link>
+      </div>
+    </main>
   );
 }

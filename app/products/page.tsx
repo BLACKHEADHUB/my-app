@@ -13,7 +13,7 @@ export default async function ProductsPage() {
         {products.map((p) => (
           <li key={p.id}>
             <Link
-              href={`/productss/${p.id}`}
+              href={`/products/${p.id}`}
               className="block rounded-lg border border-black/[.08] px-5 py-4 transition-colors hover:bg-black/[.03] dark:border-white/[.145] dark:hover:bg-white/[.05]"
             >
               <p className="font-medium text-black dark:text-zinc-50">
