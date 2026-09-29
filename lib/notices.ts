@@ -1,3 +1,10 @@
+// 5주차의 in-memory 배열을 실제 MongoDB 조회로 교체했습니다.
+// export하는 타입(Notice)과 함수 시그니처(getNotices/getNotice/createNotice)는
+// 5주차와 완전히 동일합니다.
+
+import { connectDB } from "./mongodb";
+import { Notice as NoticeModel } from "@/models/notices";
+
 export type Notice = {
   id: string;
   title: string;
@@ -6,48 +13,66 @@ export type Notice = {
   createdAt: string;
 };
 
-const notices: Notice[] = [
-  {
-    id: "1",
-    title: "웹서버보안프로그래밍 개강 안내",
-    author: "최용진",
-    content:
-      "2학기 웹서버보안프로그래밍 수업이 시작됩니다. 강의계획서를 확인해주세요.",
-    createdAt: "2026-09-01",
-  },
-  {
-    id: "2",
-    title: "GitHub Organization 초대 안내",
-    author: "최용진",
-    content:
-      "과제 제출용 GitHub Organization 초대 메일을 확인하고 가입해주세요.",
-    createdAt: "2026-09-03",
-  },
-  {
-    id: "3",
-    title: "5주차 실습 — 공지사항 게시판",
-    author: "최용진",
-    content:
-      "이번 주부터 만드는 공지사항 게시판이 학기 내내 성장하는 코스 프로젝트입니다.",
-    createdAt: "2026-09-24",
-  },
-];
+// Mongoose 문서를 화면에서 쓰는 평범한 객체(Notice)로 변환합니다.
+type NoticeDocLike = {
+  _id: unknown;
+  title: string;
+  author: string;
+  content: string;
+  createdAt?: Date;
+};
 
-let nextId = 4;
+function toNotice(doc: NoticeDocLike): Notice {
+  return {
+    id: String(doc._id),
+    title: doc.title,
+    author: doc.author,
+    content: doc.content,
+    createdAt: (doc.createdAt ?? new Date()).toISOString().slice(0, 10),
+  };
+}
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+// 초기 데이터 자동 추가 (시드 로직)
+async function seedIfEmpty() {
+  const count = await NoticeModel.countDocuments();
+  if (count > 0) return;
+
+  await NoticeModel.insertMany([
+    {
+      title: "웹서버보안프로그래밍 개강 안내",
+      author: "최용진",
+      content:
+        "2학기 웹서버보안프로그래밍 수업이 시작됩니다. 강의계획서를 확인해주세요.",
+    },
+    {
+      title: "GitHub Organization 초대 안내",
+      author: "최용진",
+      content:
+        "과제 제출용 GitHub Organization 초대 메일을 확인하고 가입해주세요.",
+    },
+    {
+      title: "6주차 실습 — MongoDB 연동",
+      author: "최용진",
+      content: "이번 주부터 공지사항 게시판이 실제 데이터베이스에 저장됩니다.",
+    },
+  ]);
 }
 
 export async function getNotices(): Promise<Notice[]> {
-  await delay(600); // 실제 DB 조회를 흉내내는 지연 — loading.tsx가 보이는 이유
-  // 최신 글이 위로 오도록 정렬 (실제 DB에서도 흔히 하는 정렬)
-  return [...notices].sort((a, b) => (a.id < b.id ? 1 : -1));
+  await connectDB();
+  await seedIfEmpty();
+  const docs = await NoticeModel.find().sort({ createdAt: -1 }).lean();
+  return docs.map((doc) => toNotice(doc as NoticeDocLike));
 }
 
 export async function getNotice(id: string): Promise<Notice | undefined> {
-  await delay(400);
-  return notices.find((n) => n.id === id);
+  await connectDB();
+  try {
+    const doc = await NoticeModel.findById(id).lean();
+    return doc ? toNotice(doc as NoticeDocLike) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function createNotice(input: {
@@ -55,14 +80,7 @@ export async function createNotice(input: {
   author: string;
   content: string;
 }): Promise<Notice> {
-  await delay(300);
-  const notice: Notice = {
-    id: String(nextId++),
-    title: input.title,
-    author: input.author,
-    content: input.content,
-    createdAt: new Date().toISOString().slice(0, 10),
-  };
-  notices.push(notice);
-  return notice;
+  await connectDB();
+  const doc = await NoticeModel.create(input);
+  return toNotice(doc);
 }
